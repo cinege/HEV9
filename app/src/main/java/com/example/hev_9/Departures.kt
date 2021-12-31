@@ -1,27 +1,22 @@
 package com.example.hev_9
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import org.json.JSONObject
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
-import java.util.*
 import kotlin.collections.ArrayList
 
 class Departures {
     var first: String
     var second: String
 
-    constructor(jsonstring: String) {
+    constructor(jsonstring: String, attr: String, value: String) {
         val jobj = JSONObject(jsonstring)
         val result = ArrayList<String>()
         val departures = jobj.getJSONObject("data").getJSONObject("entry").getJSONArray("stopTimes")
 
         for (i  in 0..departures.length()-1) {
             var departure = departures.getJSONObject(i)
-            if (departure.getString("stopId").equals("BKK_009506")){
+            if (departure.getString(attr).equals(value)){
                 result.add(convEpochtoString(departure.getInt("departureTime")))
             }
         }
