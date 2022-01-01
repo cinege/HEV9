@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">H9</string>
+
+    <string name="app_name"><font fgcolor="@color/darkgray">H9</font></string>
 </resources>

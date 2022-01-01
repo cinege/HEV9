@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Végállomás-Örs"
+        android:text="Örs Vezér tere"
         app:layout_constraintBottom_toTopOf="@+id/textview_third"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

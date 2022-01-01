@@ -1,8 +1,8 @@
 package com.example.hev_9
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -20,20 +20,27 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 // View model
-import androidx.lifecycle.Observer
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import java.net.InetSocketAddress
+import java.net.Socket
+import android.net.NetworkInfo
+
+import android.net.ConnectivityManager
+
+
+
 
 class MainActivity : AppCompatActivity() {
-    val OrsID = "BKK_004903"
-    val ArpadfoldID = "BKK_F03409"
-    var textViewFirst: TextView? = null
-    var textViewSecond: TextView? = null
-    var buttonFetch: Button? = null
-    var textViewThird: TextView? = null
-    var textViewFourth: TextView? = null
-    var buttonFetch2: Button? = null
-    val viewModel: MainActivityViewModel by viewModels()
+    private val OrsID = "BKK_004903"
+    private val ArpadfoldID = "BKK_F03409"
+    private var textViewFirst: TextView? = null
+    private var textViewSecond: TextView? = null
+    private var buttonFetch: Button? = null
+    private var textViewThird: TextView? = null
+    private var textViewFourth: TextView? = null
+    private var buttonFetch2: Button? = null
+    private val viewModel: MainActivityViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,26 +54,25 @@ class MainActivity : AppCompatActivity() {
         textViewFourth = findViewById(R.id.textview_fourth)
         buttonFetch2 = findViewById(R.id.button_fetch2)
 
-        buttonFetch?.setOnClickListener(View.OnClickListener {fetch(OrsID,"stopHeadsign", "Csömör")})
-        buttonFetch2?.setOnClickListener(View.OnClickListener {fetch(ArpadfoldID, "stopHeadsign","Örs vezér tere")})
+        buttonFetch?.setOnClickListener({fetch(OrsID,"stopHeadsign", "Csömör")})
+        buttonFetch2?.setOnClickListener({fetch(ArpadfoldID, "stopHeadsign","Örs vezér tere")})
 
-        viewModel.first.observe(this, Observer {textViewFirst?.text = it})
-        viewModel.second.observe(this, Observer {textViewSecond?.text = it})
-        viewModel.third.observe(this, Observer {textViewThird?.text = it})
-        viewModel.fourth.observe(this, Observer {textViewFourth?.text = it})
+        viewModel.first.observe(this, {textViewFirst?.text = it})
+        viewModel.second.observe(this, {textViewSecond?.text = it})
+        viewModel.third.observe(this, {textViewThird?.text = it})
+        viewModel.fourth.observe(this, {textViewFourth?.text = it})
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun fetch(stopID: String, attr: String, value: String) {
-        var departures: Departures? = null
-        lifecycleScope.launch(Dispatchers.IO) {
-            val result = getRequest(stopID)
-            print(result)
-            if (result != null) {
+    fun fetch(stopID: String, attr: String, value: String) {
+        if (true) {
+            var departures: Departures?
+            lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    departures = Departures(result, attr, value)
+                    val result = getRequest(stopID)
+                    departures = result?.let { Departures(it, attr, value) }
                     withContext(Dispatchers.Main) {
-                        when(stopID){
+                        when (stopID) {
                             //Ors
                             "BKK_004903" -> {
                                 viewModel.first.value = departures?.first
@@ -79,39 +85,27 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                } catch (e: Exception) {
+                    println("Connection Error")
                 }
-                catch(err:Error) {
-                    print("Error when parsing JSON: "+err.localizedMessage)
-                }
-            } else {
-                print("Error: Get request returned no response")
             }
         }
     }
 
     private fun getRequest(stopID: String): String? {
-        val inputStream: InputStream
-        var result: String? = null
 
-        try {
-            val sURL_part1 ="https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
-            val sURL_part2 ="&minutesBefore=1&minutesAfter=60"
-            val url = URL(sURL_part1 + stopID + sURL_part2)
-            val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
-            conn.connect()
-            inputStream = conn.inputStream
-            if (inputStream != null)
-                result = inputStream.bufferedReader().use(BufferedReader::readText)
-            else
-                result = "error: inputStream is null"
-        }
-        catch(err:Error) {
-            print("Error when executing get request: "+err.localizedMessage)
-        }
+        val inputStream: InputStream
+        var result = "{}"
+
+        val sURL_part1 ="https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
+        val sURL_part2 ="&minutesBefore=1&minutesAfter=120"
+        val url = URL(sURL_part1 + stopID + sURL_part2)
+        val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
+        conn.connect()
+        inputStream = conn.inputStream
+        result = inputStream?.bufferedReader()?.use(BufferedReader::readText) ?: "error: inputStream is null"
         return result
     }
-
-
 
 
 }
