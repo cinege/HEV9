@@ -10,77 +10,190 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <TextView
-        android:id="@+id/textview_first"
+        android:id="@+id/textview_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:text=""
-        android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/textview_second"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/darkergreen"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_hevlabel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textview_second"
+        android:id="@+id/textview_hevlabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text=""
-        android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/button_fetch"
+        android:text="@string/hevlabel"
+        android:textSize="20sp"
+        android:background="@color/darkergreen"
+        app:layout_constraintBottom_toTopOf="@+id/textview_arphev1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.21"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_first" />
-
-    <Button
-        android:id="@+id/button_fetch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Örs Vezér tere"
-        app:layout_constraintBottom_toTopOf="@+id/textview_third"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_second" />
+        app:layout_constraintTop_toBottomOf="@+id/textview_status" />
 
     <TextView
-        android:id="@+id/textview_third"
+        android:id="@+id/textview_buslabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text=""
-        android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/textview_fourth"
+        android:text="@string/buslabel"
+        android:textSize="20sp"
+        android:background="@color/darkergreen"
+        app:layout_constraintBottom_toTopOf="@+id/textview_arphev1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.82"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_fetch" />
+        app:layout_constraintTop_toBottomOf="@+id/textview_status" />
 
     <TextView
-        android:id="@+id/textview_fourth"
+        android:id="@+id/textview_arphev1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:text=""
-        android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/button_fetch2"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_arphev2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_third" />
+        app:layout_constraintTop_toBottomOf="@+id/textview_hevlabel" />
 
-    <Button
-        android:id="@+id/button_fetch2"
+    <TextView
+        android:id="@+id/textview_arpbus1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_arphev2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_hevlabel" />
+
+    <TextView
+        android:id="@+id/textview_arphev2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_fetcharp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_arphev1" />
+
+    <TextView
+        android:id="@+id/textview_arpbus2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_fetcharp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_arphev1" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_fetcharp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:text="Árpádföld"
+        android:textColor="@color/black"
+        app:backgroundTint="@color/darkergreen"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_orshev1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_fourth" />
+        app:layout_constraintTop_toBottomOf="@id/textview_arphev2" />
+
+    <TextView
+        android:id="@+id/textview_orshev1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_orshev2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_fetcharp" />
+
+    <TextView
+        android:id="@+id/textview_orsbus1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_orshev2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_fetcharp" />
+
+    <TextView
+        android:id="@+id/textview_orshev2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_fetchors"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_orshev1" />
+
+    <TextView
+        android:id="@+id/textview_orsbus2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_fetchors"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_orshev1"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_fetchors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Örs Vezér tere"
+        android:textColor="@color/black"
+        app:backgroundTint="@color/darkergreen"
+        app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_orshev2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

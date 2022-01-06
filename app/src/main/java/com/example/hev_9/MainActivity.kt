@@ -21,19 +21,27 @@ import javax.net.ssl.HttpsURLConnection
 // View model
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
+import java.net.UnknownHostException
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
-    private val orsId = "BKK_004903"
-    private val arpadfoldId = "BKK_F03409"
-    private var textViewFirst: TextView? = null
-    private var textViewSecond: TextView? = null
-    private var buttonFetch: Button? = null
-    private var textViewThird: TextView? = null
-    private var textViewFourth: TextView? = null
-    private var buttonFetch2: Button? = null
+
+    private var textViewStatus: TextView? = null
+    private var textViewArpHev1: TextView? = null
+    private var textViewArpHev2: TextView? = null
+    private var textViewArpBus1: TextView? = null
+    private var textViewArpBus2: TextView? = null
+    private var buttonFetchArp: Button? = null
+    private var textViewOrsHev1: TextView? = null
+    private var textViewOrsHev2: TextView? = null
+    private var textViewOrsBus1: TextView? = null
+    private var textViewOrsBus2: TextView? = null
+    private var buttonFetchOrs: Button? = null
     private val viewModel: MainActivityViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -41,93 +49,99 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        textViewFirst = findViewById(R.id.textview_first)
-        textViewSecond = findViewById(R.id.textview_second)
-        buttonFetch = findViewById(R.id.button_fetch)
+        textViewStatus = findViewById(R.id.textview_status)
+        textViewArpHev1 = findViewById(R.id.textview_arphev1)
+        textViewArpHev2 = findViewById(R.id.textview_arphev2)
+        textViewArpBus1 = findViewById(R.id.textview_arpbus1)
+        textViewArpBus2 = findViewById(R.id.textview_arpbus2)
+        buttonFetchArp = findViewById(R.id.button_fetcharp)
 
-        textViewThird = findViewById(R.id.textview_third)
-        textViewFourth = findViewById(R.id.textview_fourth)
-        buttonFetch2 = findViewById(R.id.button_fetch2)
+        textViewOrsHev1 = findViewById(R.id.textview_orshev1)
+        textViewOrsHev2 = findViewById(R.id.textview_orshev2)
+        textViewOrsBus1 = findViewById(R.id.textview_orsbus1)
+        textViewOrsBus2 = findViewById(R.id.textview_orsbus2)
+        buttonFetchOrs = findViewById(R.id.button_fetchors)
 
-        buttonFetch?.setOnClickListener {fetch(orsId, "stopHeadsign", "Csömör") }
-        buttonFetch2?.setOnClickListener{fetch(arpadfoldId, "stopHeadsign","Örs vezér tere")}
+        buttonFetchArp?.setOnClickListener{collect(0)}
+        buttonFetchOrs?.setOnClickListener{collect(1)}
 
-        viewModel.first.observe(this, {textViewFirst?.text = it})
-        viewModel.second.observe(this, {textViewSecond?.text = it})
-        viewModel.third.observe(this, {textViewThird?.text = it})
-        viewModel.fourth.observe(this, {textViewFourth?.text = it})
+        viewModel.status.observe(this, {textViewStatus?.text = it})
+        viewModel.arphev1.observe(this, {textViewArpHev1?.text = it})
+        viewModel.arphev2.observe(this, {textViewArpHev2?.text = it})
+        viewModel.arpbus1.observe(this, {textViewArpBus1?.text = it})
+        viewModel.arpbus2.observe(this, {textViewArpBus2?.text = it})
+        viewModel.orshev1.observe(this, {textViewOrsHev1?.text = it})
+        viewModel.orshev2.observe(this, {textViewOrsHev2?.text = it})
+        viewModel.orsbus1.observe(this, {textViewOrsBus1?.text = it})
+        viewModel.orsbus2.observe(this, {textViewOrsBus2?.text = it})
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun fetch(stopID: String, attr: String, value: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
+    fun collect(loc: Int) {
+        lifecycleScope.launch(Dispatchers.Default) {
             try {
-                val result = getRequest(stopID)
-                val departures = processJSON(result, attr, value)
-                withContext(Dispatchers.Main) {uiUpdate(stopID, departures)}
+                val result = getRequest(loc)
+                val departures = processJSONs(result, loc)
+                withContext(Dispatchers.Main) {uiUpdate(loc, departures)}
+            } catch (e: UnknownHostException) {
+                withContext(Dispatchers.Main) {uiUpdate(loc, Departures("Nincs kapcsolat","-", "-", "-", "-"))}
+            } catch (e: JSONException) {
+                withContext(Dispatchers.Main) {uiUpdate(loc, Departures("Váratlan adatformátum","-", "-", "-", "-"))}
             } catch (e: Exception) {
+                withContext(Dispatchers.Main) {uiUpdate(loc, Departures("Hiba","-", "-", "-", "-"))}
             }
         }
     }
 
-    private fun uiUpdate(stopID: String, departures: Departures){
-        when (stopID) {
-            //Ors
-            "BKK_004903" -> {
-                viewModel.first.value = departures.first
-                viewModel.second.value = departures.second
-            }
-            //Arpadfold
-            "BKK_F03409" -> {
-                viewModel.third.value = departures.first
-                viewModel.fourth.value = departures.second
-            }
-        }
-    }
-
-    private fun getRequest(stopID: String): String {
-        var result: String
-        try {
-            val inputStream: InputStream
-            val sURLpart1 = "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
-            val sURLpart2 = "&minutesBefore=1&minutesAfter=120"
-            val url = URL(sURLpart1 + stopID + sURLpart2)
+    @Throws(UnknownHostException::class)
+    private fun getRequest(loc: Int): Array<String> {
+        val stations = arrayOf(arrayOf("BKK_F03409","BKK_F03299"), arrayOf("BKK_004903","BKK_F02755"))
+        val result = arrayOf("","")
+        var inputStream: InputStream
+        val sURLpart1 = "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
+        val sURLpart2 = "&minutesBefore=1&minutesAfter=120"
+        for (i in 0..1) {
+            val url = URL(sURLpart1 + stations[loc][i] + sURLpart2)
             val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
             conn.connect()
             inputStream = conn.inputStream
-            result = inputStream?.bufferedReader()?.use(BufferedReader::readText) ?: "Nincs adat"
-        } catch (err:Error){
-            result = "Hálózati hiba"
+            result[i] = inputStream?.bufferedReader()?.use(BufferedReader::readText) ?: "Nincs adat"
         }
         return result
     }
 
-    private fun processJSON (jsonstring: String, attr: String, value: String) : Departures {
-        val result = Departures("", "")
-            try {
-                if (jsonstring.length > 20) {
-                    val jobj = JSONObject(jsonstring)
-                    val results = ArrayList<String>()
-                    val departures =
-                        jobj.getJSONObject("data").getJSONObject("entry").getJSONArray("stopTimes")
+    @Throws(JSONException::class)
+    private fun processJSONs (strings: Array<String>, loc: Int) : Departures {
+        val result = arrayOf("","","","")
+        val direction = arrayOf("tobp", "frombp")
+        val hevDepartures = filterHEV(getDepartures(strings[0]), direction[loc])
+        val busDepartures = getDepartures(strings[1])
 
-                    for (i in 0 until departures.length()) {
-                        val departure = departures.getJSONObject(i)
-                        if (departure.getString(attr).equals(value)) {
-                            results.add(convEpochtoString(departure.getInt("departureTime")))
-                        }
-                    }
-                    result.first = if (results.size > 0) results[0] else "-"
-                    result.second = if (results.size > 1) results[1] else "-"
-                } else {
-                    result.first = jsonstring
-                    result.second = jsonstring
-                }
-            } catch (err:Error) {
-                result.first = "Nem dolgozható fel"
-                result.second = "Nem dolgozható fel"
+        val status = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd       HH:mm:ss"))
+        result[0] = if (hevDepartures.length() > 0) convEpochtoString(hevDepartures.getJSONObject(0).getInt("departureTime")) else "-"
+        result[1] = if (hevDepartures.length() > 1) convEpochtoString(hevDepartures.getJSONObject(1).getInt("departureTime")) else "-"
+        result[2] = if (busDepartures.length() > 0) processBusEntry(busDepartures.getJSONObject(0)) else "-"
+        result[3] = if (busDepartures.length() > 1) processBusEntry(busDepartures.getJSONObject(1)) else "-"
+        return Departures(status, result[0], result[1], result[2], result[3])
+    }
+
+    @Throws(JSONException::class)
+    fun filterHEV(departures: JSONArray, direction: String): JSONArray {
+        val result = ArrayList<JSONObject>()
+        for (i in 0 until departures.length()) {
+            val departure = departures.getJSONObject(i)
+
+            //print(departures.getJSONObject(i).getString(attr))
+            val stopheadsign = departures.getJSONObject(i).getString("stopHeadsign")
+            if (direction.equals("tobp") && (stopheadsign.equals("Örs vezér tere") || stopheadsign.equals("Cinkota")) ||
+                direction.equals("frombp") && (stopheadsign.equals("Csömör"))) {
+                result.add(departure)
             }
-        return result
+        }
+        return JSONArray(result)
+    }
+    private fun processBusEntry(busentry: JSONObject): String {
+           return convEpochtoString(busentry.getInt("departureTime"))
     }
 
     private fun convEpochtoString(time: Int): String {
@@ -143,4 +157,34 @@ class MainActivity : AppCompatActivity() {
         //return hh:mm format
         return "$hpad$hour:$mpad$min"
     }
+
+    private fun getDepartures(json: String) : JSONArray  {
+        return JSONObject(json)
+            .getJSONObject("data")
+            .getJSONObject("entry")
+            .getJSONArray("stopTimes")
+    }
+
+    private fun uiUpdate(loc: Int, departures: Departures){
+        viewModel.status.value = departures.status
+        when (loc) {
+            //Arpadfold
+            0 -> {
+                viewModel.arphev1.value = departures.hev1
+                viewModel.arphev2.value = departures.hev2
+                viewModel.arpbus1.value = departures.bus1
+                viewModel.arpbus2.value = departures.bus2
+            }
+            //Ors
+            1 -> {
+                viewModel.orshev1.value = departures.hev1
+                viewModel.orshev2.value = departures.hev2
+                viewModel.orsbus1.value = departures.bus1
+                viewModel.orsbus2.value = departures.bus2
+            }
+
+        }
+    }
 }
+
+
