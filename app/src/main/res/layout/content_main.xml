@@ -36,7 +36,7 @@
         android:background="@color/darkergreen"
         app:layout_constraintBottom_toTopOf="@+id/textview_arphev1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintHorizontal_bias="0.20"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview_status" />
 
@@ -51,7 +51,7 @@
         android:background="@color/darkergreen"
         app:layout_constraintBottom_toTopOf="@+id/textview_arphev1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.82"
+        app:layout_constraintHorizontal_bias="0.83"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview_status" />
 

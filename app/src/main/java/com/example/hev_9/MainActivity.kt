@@ -95,7 +95,8 @@ class MainActivity : AppCompatActivity() {
 
     @Throws(UnknownHostException::class)
     private fun getRequest(loc: Int): Array<String> {
-        val stations = arrayOf(arrayOf("BKK_F03409","BKK_F03299"), arrayOf("BKK_004903","BKK_F02755"))
+        // Arpadfold H9 BKK_19830298 B31 BKK_F03299 Ors H9 BKK_19795278 B31 BKK_F02755
+        val stations = arrayOf(arrayOf("BKK_19830298","BKK_F03299"), arrayOf("BKK_19795278","BKK_F02755"))
         val result = arrayOf("","")
         var inputStream: InputStream
         val sURLpart1 = "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
@@ -116,12 +117,22 @@ class MainActivity : AppCompatActivity() {
         val direction = arrayOf("tobp", "frombp")
         val hevDepartures = filterHEV(getDepartures(strings[0]), direction[loc])
         val busDepartures = getDepartures(strings[1])
-
-        val status = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd       HH:mm:ss"))
-        result[0] = if (hevDepartures.length() > 0) convEpochtoString(hevDepartures.getJSONObject(0).getInt("departureTime")) else "-"
-        result[1] = if (hevDepartures.length() > 1) convEpochtoString(hevDepartures.getJSONObject(1).getInt("departureTime")) else "-"
-        result[2] = if (busDepartures.length() > 0) processBusEntry(busDepartures.getJSONObject(0)) else "-"
-        result[3] = if (busDepartures.length() > 1) processBusEntry(busDepartures.getJSONObject(1)) else "-"
+        val status = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd         HH:mm:ss"))
+        for (i in 0..1) {
+            if (hevDepartures.length() > i) {
+                result[i] = convEpochtoString(hevDepartures.getJSONObject(i).getInt("departureTime"))
+                if (hevDepartures.getJSONObject(i).getString("stopHeadsign").equals("Cinkota")) {
+                    result[i] = result[i] + "C"
+                }
+            } else {
+                result[i] = "-"
+            }
+            if (busDepartures.length() > i) {
+                result[2 + i] = processBusEntry(busDepartures.getJSONObject(i))
+            } else {
+                result[2 + i] = "-"
+            }
+        }
         return Departures(status, result[0], result[1], result[2], result[3])
     }
 
@@ -130,8 +141,6 @@ class MainActivity : AppCompatActivity() {
         val result = ArrayList<JSONObject>()
         for (i in 0 until departures.length()) {
             val departure = departures.getJSONObject(i)
-
-            //print(departures.getJSONObject(i).getString(attr))
             val stopheadsign = departures.getJSONObject(i).getString("stopHeadsign")
             if (direction.equals("tobp") && (stopheadsign.equals("Örs vezér tere") || stopheadsign.equals("Cinkota")) ||
                 direction.equals("frombp") && (stopheadsign.equals("Csömör"))) {
