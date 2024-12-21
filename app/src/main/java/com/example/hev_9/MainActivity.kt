@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     fun collect(loc: Int) {
         lifecycleScope.launch(Dispatchers.Default) {
             try {
-                val result = getRequest(loc)
+                val result = this@MainActivity.getRequest(loc)
                 val departures = processJSONs(result, loc)
                 withContext(Dispatchers.Main) {uiUpdate(loc, departures)}
             } catch (e: UnknownHostException) {
@@ -101,8 +101,10 @@ class MainActivity : AppCompatActivity() {
         var inputStream: InputStream
         val sURLpart1 = "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?stopId="
         val sURLpart2 = "&minutesBefore=1&minutesAfter=120"
+        // api key
+        val sURLpart3 = "&key=18755a33-d3cd-4a32-a0e4-68b790f71e95"
         for (i in 0..1) {
-            val url = URL(sURLpart1 + stations[loc][i] + sURLpart2)
+            val url = URL(sURLpart1 + stations[loc][i] + sURLpart2 + sURLpart3)
             val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
             conn.connect()
             inputStream = conn.inputStream
